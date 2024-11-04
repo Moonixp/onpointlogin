@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="htmx-config" content='{"selfRequestsOnly":false}'>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+    <link rel="icon" href="/assets/favicon.ico   ">
+    <link rel="manifest" href="assets/site.webmanifest">
+    <link rel="stylesheet" href="output.css">
+    <script src="index.js"></script>
+
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #FCFCFF;
+        }
+    </style>
+
+</head>
+
+<body
+    class="bg-[url('https://static.wixstatic.com/media/37e2ae_92d5482fae0948dd8c8eaef3674e4f6b~mv2.jpg/v1/fill/w_1920,h_823,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/37e2ae_92d5482fae0948dd8c8eaef3674e4f6b~mv2.jpg')]">
+
+    <div class="flex flex-col items-center h-screen w-screen">
+
+        <!-- logo -->
+        <span class="text-[#FCFCFF] flex flex-row items-center bg-[#003366] p-2 rounded-lg w-screen">
+            <img src="https://static.wixstatic.com/media/08fc9a_ed87e005e1ca472e90e655b67383a922~mv2.png/v1/fill/w_34,h_42,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/onpointserv_com.png"
+                class="h-12 w-12" alt="OnPoint Services Logo" />
+            <h1 class="font-bold text-lg ml-2">onpointserv</h1>
+        </span>
+
+        <!-- form Banner -->
+        <h1 id="welcome" class="my-5 font-bold text-3xl hover:not-italic text-[#FCFCFF] text-center">Welcome to OnPoint
+        </h1>
+
+        <!-- Search Input -->
+        <div class="mb-5 w-full max-w-md">
+            <input type="text" id="searchInput" onkeyup="filterNames()" placeholder="search..."
+                class="px-3 h-10 w-full text-xl bg-[#001a33] placeholder:italic placeholder:text-center rounded-[20px] text-[#FCFCFF]"
+                aria-label="Search for names" />
+        </div>
+
+        <!-- table -->
+        <div class="table-container w-full max-w-md text-2xl text-[#FCFCFF]">
+            <table id="nameTable" class="w-full border-collapse border border-[#001a33]">
+                <thead>
+                    <tr>
+                        <th class="border border-[#FCFCFF] px-4 py-2">Name</th>
+                        <th class="border border-[#FCFCFF] px-4 py-2">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="nameRows">
+                    <!-- Rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+
+</html>
