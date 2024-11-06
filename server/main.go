@@ -20,6 +20,7 @@ func main() {
 	router.POST("/loginuser", Loginbybody)
 	router.GET("/login", Loginbyparam)
 	router.GET("/names", GetUsersName)
+	router.GET("/loggedin", isUserLoggedIn)
 	router.Run(":8000")
 	db.Close()
 

@@ -4,8 +4,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func DbInit() {
@@ -29,7 +30,7 @@ func DbInit() {
 }
 
 func DbGetAllUsers() ([]Userid, error) {
-	rows, err := db.Query("SELECT fullname FROM userids")
+	rows, err := db.Query("SELECT id, fullname, last_login_date, last_login_time FROM userids")
 
 	if err != nil {
 		return []Userid{}, err
@@ -40,66 +41,88 @@ func DbGetAllUsers() ([]Userid, error) {
 	var UserIds []Userid
 
 	for rows.Next() {
-		var userid Userid
+		tempuser := SqlUser{}
+		userid := Userid{}
 
-		if err := rows.Scan(&userid.Fullname); err != nil {
+		err := rows.Scan(&tempuser.id, &tempuser.name, &tempuser.Date, &tempuser.Time)
+		if err != nil {
 			return []Userid{}, err
 		}
-
+		err = tempuser.convertoUserid(&userid)
+		if err != nil {
+			return []Userid{}, err
+		}
 		UserIds = append(UserIds, userid)
 	}
 	return UserIds, nil
 }
 
-func DbGetId(name string) (bool, int, error) {
+func DbGetId(name string) (int, error) {
 	if len(name) < 1 {
-		return false, -1, errors.New("name is empty")
+		return -1, errors.New("name is empty")
 	}
 	fmt.Println("Name gotten:", name)
 
 	find, err := db.Query("select id, fullname, last_login_date, last_login_time from userids where fullname = ?", name)
 	if err != nil {
-		return false, -1, err
+		return -1, err
 	}
-	user := Userid{}
-	var lastLoginDate, lastLoginTime sql.NullString
+
+	/*
+		var lastLoginDate, lastLoginTime sql.NullString
+
+		for find.Next() {
+			err := find.Scan(&user.Id, &user.Fullname, &lastLoginDate, &lastLoginTime)
+
+			if err == sql.ErrNoRows {
+				return -1, err
+			}
+
+			if err != nil {
+				return -1, err
+			}
+
+		}
+
+		if lastLoginDate.Valid {
+			user.LastLoginDate = lastLoginDate.String
+		} else {
+			user.LastLoginDate = ""
+		}
+
+		if lastLoginTime.Valid {
+			user.LastLoginTime = lastLoginTime.String
+		} else {
+			user.LastLoginTime = ""
+		}
+	*/
+
+	tempuser := SqlUser{}
 
 	for find.Next() {
-		err := find.Scan(&user.Id, &user.Fullname, &lastLoginDate, &lastLoginTime)
+		err := find.Scan(&tempuser.id, &tempuser.name, &tempuser.Date, &tempuser.Time)
 
 		if err == sql.ErrNoRows {
-			return false, -1, err
+			return -1, err
 		}
 
 		if err != nil {
-			return false, -1, err
+			return -1, err
 		}
-
 	}
 
-	if lastLoginDate.Valid {
-		user.LastLoginDate = lastLoginDate.String
-	} else {
-		user.LastLoginDate = ""
+	err = tempuser.validate()
+	if err != nil {
+		return -1, err
 	}
 
-	if lastLoginTime.Valid {
-		user.LastLoginTime = lastLoginTime.String
-	} else {
-		user.LastLoginTime = ""
+	fmt.Println("DbGetID user:", tempuser)
+
+	if tempuser.id.Int64 == 0 {
+		return -1, errors.New("user not found")
 	}
 
-	fmt.Println("DbGetID user:", user)
-
-	if user.Id == 0 {
-		return false, -1, nil
-	}
-
-	if user.LastLoginDate == time.Now().Format("2006-01-02") {
-		return true, user.Id, nil
-	}
-
-	return false, user.Id, nil
+	return int(tempuser.id.Int64), nil
 }
 
 func DbInsertLogin(findUser LogintimeUser) error {
@@ -119,4 +142,35 @@ func DbInsertLogin(findUser LogintimeUser) error {
 	}
 
 	return nil
+}
+
+func DbisUserLoggedIn(id int) (bool, error) {
+	if id < 1 {
+		return false, errors.New("id < 1")
+	}
+
+	tempuser := SqlUser{}
+
+	rows, err := db.Query("SELECT id, fullname, last_login_date, last_login_time FROM userids WHERE id = ?", id)
+
+	if err != nil {
+		return false, err
+	}
+
+	for rows.Next() {
+		err := rows.Scan(&tempuser.id, &tempuser.name, &tempuser.Date, &tempuser.Time)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	fmt.Println("User: ", tempuser)
+
+	if tempuser.id.Valid && tempuser.id.Int64 > 0 {
+		if tempuser.Date.Valid && tempuser.Date.String == time.Now().Format("2006-01-02") {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }

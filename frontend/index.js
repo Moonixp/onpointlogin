@@ -21,6 +21,7 @@ fetch("http://localhost:8000/users")
 function filterNames() {
     const input = document.getElementById('searchInput');
     const filter = input.value.toLowerCase();
+    const tbody = document.getElementById('nameRows');
     const rows = tbody.getElementsByTagName('tr');
 
     for (let i = 0; i < rows.length; i++) {
