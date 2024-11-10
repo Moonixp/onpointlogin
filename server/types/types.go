@@ -1,4 +1,4 @@
-package main
+package types
 
 import (
 	"database/sql"
@@ -37,8 +37,8 @@ import (
 */
 
 type SqlUser struct {
-	name sql.NullString
-	id   sql.NullInt64
+	Name sql.NullString
+	Id   sql.NullInt64
 	Time sql.NullString
 	Date sql.NullString
 }
@@ -56,14 +56,14 @@ type Userid struct {
 	Id            int    `json:"id"`
 }
 
-func (sqlUser *SqlUser) convertoUserid(userid *Userid) error {
-	if sqlUser.id.Valid {
-		userid.Id = int(sqlUser.id.Int64)
+func (sqlUser *SqlUser) ConvertoUserid(userid *Userid) error {
+	if sqlUser.Id.Valid {
+		userid.Id = int(sqlUser.Id.Int64)
 	} else {
 		userid.Id = 0
 	}
-	if sqlUser.name.Valid {
-		userid.Fullname = sqlUser.name.String
+	if sqlUser.Name.Valid {
+		userid.Fullname = sqlUser.Name.String
 	} else {
 		userid.Fullname = ""
 	}
@@ -80,14 +80,14 @@ func (sqlUser *SqlUser) convertoUserid(userid *Userid) error {
 	return nil
 }
 
-func (sqlUser *SqlUser) converttoLoginUser(loginTimeUser *LogintimeUser) error {
-	if sqlUser.id.Valid {
-		loginTimeUser.Id = int(sqlUser.id.Int64)
+func (sqlUser *SqlUser) ConverttoLoginUser(loginTimeUser *LogintimeUser) error {
+	if sqlUser.Id.Valid {
+		loginTimeUser.Id = int(sqlUser.Id.Int64)
 	} else {
 		loginTimeUser.Id = 0
 	}
-	if sqlUser.name.Valid {
-		loginTimeUser.Fullname = sqlUser.name.String
+	if sqlUser.Name.Valid {
+		loginTimeUser.Fullname = sqlUser.Name.String
 	} else {
 		loginTimeUser.Fullname = ""
 	}
@@ -104,12 +104,12 @@ func (sqlUser *SqlUser) converttoLoginUser(loginTimeUser *LogintimeUser) error {
 	return nil
 }
 
-func (sqlUser *SqlUser) validate() error {
-	if sqlUser.name.Valid && sqlUser.id.Valid && sqlUser.Date.Valid && sqlUser.Time.Valid {
+func (sqlUser *SqlUser) Validate() error {
+	if sqlUser.Name.Valid && sqlUser.Id.Valid && sqlUser.Date.Valid && sqlUser.Time.Valid {
 		return nil
-	} else if !sqlUser.name.Valid {
+	} else if !sqlUser.Name.Valid {
 		return errors.New("name is empty")
-	} else if !sqlUser.id.Valid {
+	} else if !sqlUser.Id.Valid {
 		return errors.New("id is empty")
 	} else if !sqlUser.Date.Valid {
 		return errors.New("date is empty")

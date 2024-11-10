@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	"database/sql"
@@ -6,11 +6,16 @@ import (
 	"fmt"
 	"time"
 
+	T "server/types"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
+var DATABASE *sql.DB
+var db *sql.DB
+
 func DbInit() {
-	dsn := "root:root@tcp(localhost:3306)/onpointusers"
+	dsn := "root:root@tcp(172.17.0.1:3306)/onpointusers"
 	var err error
 
 	db, err = sql.Open("mysql", dsn)
@@ -27,30 +32,31 @@ func DbInit() {
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
 	fmt.Println("db connected!")
+	DATABASE = db
 }
 
-func DbGetAllUsers() ([]Userid, error) {
+func DbGetAllUsers() ([]T.Userid, error) {
 	rows, err := db.Query("SELECT id, fullname, last_login_date, last_login_time FROM userids")
 
 	if err != nil {
-		return []Userid{}, err
+		return []T.Userid{}, err
 	}
 
 	defer rows.Close()
 
-	var UserIds []Userid
+	var UserIds []T.Userid
 
 	for rows.Next() {
-		tempuser := SqlUser{}
-		userid := Userid{}
+		tempuser := T.SqlUser{}
+		userid := T.Userid{}
 
-		err := rows.Scan(&tempuser.id, &tempuser.name, &tempuser.Date, &tempuser.Time)
+		err := rows.Scan(&tempuser.Id, &tempuser.Name, &tempuser.Date, &tempuser.Time)
 		if err != nil {
-			return []Userid{}, err
+			return []T.Userid{}, err
 		}
-		err = tempuser.convertoUserid(&userid)
+		err = tempuser.ConvertoUserid(&userid)
 		if err != nil {
-			return []Userid{}, err
+			return []T.Userid{}, err
 		}
 		UserIds = append(UserIds, userid)
 	}
@@ -97,10 +103,10 @@ func DbGetId(name string) (int, error) {
 		}
 	*/
 
-	tempuser := SqlUser{}
+	tempuser := T.SqlUser{}
 
 	for find.Next() {
-		err := find.Scan(&tempuser.id, &tempuser.name, &tempuser.Date, &tempuser.Time)
+		err := find.Scan(&tempuser.Id, &tempuser.Name, &tempuser.Date, &tempuser.Time)
 
 		if err == sql.ErrNoRows {
 			return -1, err
@@ -111,22 +117,22 @@ func DbGetId(name string) (int, error) {
 		}
 	}
 
-	err = tempuser.validate()
+	err = tempuser.Validate()
 	if err != nil {
 		return -1, err
 	}
 
 	fmt.Println("DbGetID user:", tempuser)
 
-	if tempuser.id.Int64 == 0 {
+	if tempuser.Id.Int64 == 0 {
 		return -1, errors.New("user not found")
 	}
 
-	return int(tempuser.id.Int64), nil
+	return int(tempuser.Id.Int64), nil
 }
 
-func DbInsertLogin(findUser LogintimeUser) error {
-	if findUser == (LogintimeUser{}) {
+func DbInsertLogin(findUser T.LogintimeUser) error {
+	if findUser == (T.LogintimeUser{}) {
 		return errors.New("user is empty")
 	}
 
@@ -149,7 +155,7 @@ func DbisUserLoggedIn(id int) (bool, error) {
 		return false, errors.New("id < 1")
 	}
 
-	tempuser := SqlUser{}
+	tempuser := T.SqlUser{}
 
 	rows, err := db.Query("SELECT id, fullname, last_login_date, last_login_time FROM userids WHERE id = ?", id)
 
@@ -158,7 +164,7 @@ func DbisUserLoggedIn(id int) (bool, error) {
 	}
 
 	for rows.Next() {
-		err := rows.Scan(&tempuser.id, &tempuser.name, &tempuser.Date, &tempuser.Time)
+		err := rows.Scan(&tempuser.Id, &tempuser.Name, &tempuser.Date, &tempuser.Time)
 		if err != nil {
 			return false, err
 		}
@@ -166,7 +172,7 @@ func DbisUserLoggedIn(id int) (bool, error) {
 
 	fmt.Println("User: ", tempuser)
 
-	if tempuser.id.Valid && tempuser.id.Int64 > 0 {
+	if tempuser.Id.Valid && tempuser.Id.Int64 > 0 {
 		if tempuser.Date.Valid && tempuser.Date.String == time.Now().Format("2006-01-02") {
 			return true, nil
 		}

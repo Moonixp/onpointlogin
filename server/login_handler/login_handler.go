@@ -1,48 +1,17 @@
-package main
+package login_handler
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
-	"strings"
-	"time"
+
+	"server/database"
+	T "server/types"
+	"server/user_handler"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
-
-func SetDateAndTime(user *LogintimeUser) error {
-	if user == nil {
-		return errors.New("user is nil")
-	}
-	now := time.Now()
-	user.Time = now.Format("15:04")
-	user.Date = now.Format("2006-01-02")
-	return nil
-}
-
-func GetAllUsers(ctx *gin.Context) {
-	users, err := DbGetAllUsers()
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	ctx.JSON(http.StatusOK, users)
-}
-
-func GetUsersName(ctx *gin.Context) {
-	names, err := os.ReadFile("names.txt")
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	lines := strings.Split(string(names), "\n")
-
-	ctx.JSON(http.StatusOK, lines)
-}
 
 // Login takes a gin context, a name and an id.
 //
@@ -54,35 +23,35 @@ func GetUsersName(ctx *gin.Context) {
 //
 // If there is an error when logging the user in, it will return a 500 with a json object
 // containing the error message.
-func Login(ctx *gin.Context, name string, id int) (LogintimeUser, error) {
+func Login(ctx *gin.Context, name string, id int) (T.LogintimeUser, error) {
 
-	alreadyLoggedIn, err := DbisUserLoggedIn(id)
+	alreadyLoggedIn, err := database.DbisUserLoggedIn(id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return LogintimeUser{}, err
+		return T.LogintimeUser{}, err
 	}
 
-	findUser := LogintimeUser{
+	findUser := T.LogintimeUser{
 		Id:       id,
 		Fullname: name,
 	}
 
-	if err := SetDateAndTime(&findUser); err != nil {
+	if err := user_handler.SetDateAndTime(&findUser); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return LogintimeUser{}, err
+		return T.LogintimeUser{}, err
 	}
 
 	fmt.Println("loginByParam User:  ", findUser)
 
 	if alreadyLoggedIn {
 		ctx.JSON(200, gin.H{"id": -1, "data": "user already logged in"})
-		return LogintimeUser{}, err
+		return T.LogintimeUser{}, err
 	}
 
-	err = DbInsertLogin(findUser)
+	err = database.DbInsertLogin(findUser)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return LogintimeUser{}, err
+		return T.LogintimeUser{}, err
 	}
 	return findUser, nil
 }
@@ -93,7 +62,7 @@ func Loginbyparam(ctx *gin.Context) {
 	name := ctx.Query("name")
 	fmt.Println("name: ", name)
 
-	id, err := DbGetId(name)
+	id, err := database.DbGetId(name)
 	if (err != nil) || (id == -1) || (id == 0) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "User not found"})
 		return
@@ -122,7 +91,7 @@ func Loginbybody(ctx *gin.Context) {
 		return
 	}
 
-	id, err := DbGetId(obj.Name)
+	id, err := database.DbGetId(obj.Name)
 	println("id: ", id, " err: ", err)
 
 	if err != nil || id == -1 {
@@ -140,7 +109,7 @@ func Loginbybody(ctx *gin.Context) {
 	ctx.JSON(200, user)
 }
 
-func isUserLoggedIn(ctx *gin.Context) {
+func IsUserLoggedIn(ctx *gin.Context) {
 	id := ctx.Query("id")
 	fmt.Println("id: ", id)
 
@@ -150,7 +119,7 @@ func isUserLoggedIn(ctx *gin.Context) {
 		return
 	}
 
-	value, err := DbisUserLoggedIn(int(idInt))
+	value, err := database.DbisUserLoggedIn(int(idInt))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -9,9 +10,15 @@ import (
 	"github.com/go-playground/assert/v2"
 )
 
+const (
+	ip   string = "172.17.0.2"
+	port string = "8000"
+)
+
 func Test(t *testing.T) {
 	t.Run(" ::/users", func(t *testing.T) {
-		resp, err := http.Get("http://localhost:8000/users")
+
+		resp, err := http.Get(fmt.Sprintf("http://%s:%s/users", ip, port))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -26,7 +33,7 @@ func Test(t *testing.T) {
 	})
 
 	t.Run(" ::/names", func(t *testing.T) {
-		resp, err := http.Get("http://localhost:8000/names")
+		resp, err := http.Get(fmt.Sprintf("http://%s:%s/names", ip, port))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -40,7 +47,7 @@ func Test(t *testing.T) {
 	})
 
 	t.Run(" ::/login", func(t *testing.T) {
-		resp, err := http.Get("http://localhost:8000/login?name=Oh%20Hanie")
+		resp, err := http.Get(fmt.Sprintf("http://%s:%s/login?name=Oh%%20Hanie", ip, port))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -55,7 +62,7 @@ func Test(t *testing.T) {
 	})
 
 	t.Run(" ::/loginuser", func(t *testing.T) {
-		resp, err := http.Post("http://localhost:8000/loginuser",
+		resp, err := http.Post(fmt.Sprintf("http://%s:%s/loginuser", ip, port),
 			"application/json",
 			strings.NewReader(`{"name":"Oh Hanie"}`))
 
@@ -73,7 +80,7 @@ func Test(t *testing.T) {
 	})
 
 	t.Run(" ::/loggedin", func(t *testing.T) {
-		resp, err := http.Get("http://localhost:8000/loggedin?id=1")
+		resp, err := http.Get(fmt.Sprintf("http://%s:%s/loggedin?id=1", ip, port))
 
 		if err != nil {
 			t.Fatal(err)
