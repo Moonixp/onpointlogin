@@ -7,14 +7,14 @@ import (
 
 /*
  ---> TABLES
- userids 	-> holds all users and their last loginin time & date
+ users 	-> holds all users and their last loginin time & date
  logintimes -> holds all login times for every user
 
  linked by id
 ---> STRUCTS
 
  -- SqlUser -- is a simple struct that holds data about a user
- that we get from the userids table in the db
+ that we get from the users table in the db
  why SqlUser? because of nullvalues in sql queries
  name - the users name
  id - the users id
@@ -29,7 +29,7 @@ import (
  Id - the users id
 
  -- Userid -- is a simple struct that holds data about a user
- that we get from the userids table in the db
+ that we get from the users table in the db
  Fullname - the users name
  LastLoginTime - the users last login time
  LastLoginDate - the users last login date

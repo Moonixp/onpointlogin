@@ -47,7 +47,7 @@ func Test(t *testing.T) {
 	})
 
 	t.Run(" ::/login", func(t *testing.T) {
-		resp, err := http.Get(fmt.Sprintf("http://%s:%s/login?name=Oh%%20Hanie", ip, port))
+		resp, err := http.Get(fmt.Sprintf("http://%s:%s/login?name=OH%%20Hyun%%20Wo", ip, port))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -64,7 +64,7 @@ func Test(t *testing.T) {
 	t.Run(" ::/loginuser", func(t *testing.T) {
 		resp, err := http.Post(fmt.Sprintf("http://%s:%s/loginuser", ip, port),
 			"application/json",
-			strings.NewReader(`{"name":"Oh Hanie"}`))
+			strings.NewReader(`{"name":"OH Hyun Wo"}`))
 
 		if err != nil {
 			t.Fatal(err)

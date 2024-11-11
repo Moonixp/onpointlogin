@@ -34,7 +34,7 @@ func GetAllUsers(ctx *gin.Context) {
 }
 
 func GetUsersName(ctx *gin.Context) {
-	names, err := os.ReadFile("names.txt")
+	names, err := os.ReadFile("/etc/users.csv")
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

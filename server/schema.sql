@@ -1,13 +1,15 @@
-/*
-CREATE TABLE userids (
+CREATE DATABASE onpointusers;    
+USE onpointusers;
+
+CREATE TABLE users (
     fullname VARCHAR(255),
     last_login_time VARCHAR(255),
     last_login_date VARCHAR(255)
 );
 
-ALTER TABLE userids ADD COLUMN id INT AUTO_INCREMENT PRIMARY KEY
+ALTER TABLE users ADD COLUMN id INT AUTO_INCREMENT PRIMARY KEY;
 
-INSERT INTO USERS (fullname) VALUES
+INSERT INTO users (fullname) VALUES
     ('Oh Hanie'),
     ('Marfo Philip Kwarteng Ansah'),
     ('Katakyie Kojo Desu Achempong'),
@@ -38,19 +40,12 @@ INSERT INTO USERS (fullname) VALUES
 
 CREATE TABLE logintimes (
     id INT NOT NULL,
-    FOREIGN KEY (id) REFERENCES userids(id),
+    FOREIGN KEY (id) REFERENCES users(id),
     time VARCHAR(255),
     date VARCHAR(255)
 );
 
-SELECT * from USERS INNER JOIN logintimes ON USERS.id = logintimes.id
+SELECT * from users INNER JOIN logintimes ON users.id = logintimes.id;
 
-select * from userids inner join  logintimes on userids.id = logintimes.id ;
-INSERT INTO logintimes (id) VALUES
-(1), (2), (3), (4), (5), (6), (7), (8), (9), (10),
-(11), (12), (13), (14), (15), (16), (17), (18), (19), (20),
-(21), (22), (23), (24),(25),(26);
-
-*/
-
+select * from users inner join  logintimes on users.id = logintimes.id ;
 

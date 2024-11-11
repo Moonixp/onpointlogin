@@ -23,5 +23,6 @@ RUN go build -o /server/
 from alpine:latest 
 
 COPY --from=builder /server/server /usr/bin/server
+COPY --from=builder /server/users.csv /etc/users.csv
 CMD ["server"]
 

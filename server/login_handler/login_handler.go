@@ -26,6 +26,7 @@ import (
 func Login(ctx *gin.Context, name string, id int) (T.LogintimeUser, error) {
 
 	alreadyLoggedIn, err := database.DbisUserLoggedIn(id)
+
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return T.LogintimeUser{}, err
@@ -41,7 +42,7 @@ func Login(ctx *gin.Context, name string, id int) (T.LogintimeUser, error) {
 		return T.LogintimeUser{}, err
 	}
 
-	fmt.Println("loginByParam User:  ", findUser)
+	fmt.Println("loginByParam::user: ", findUser)
 
 	if alreadyLoggedIn {
 		ctx.JSON(200, gin.H{"id": -1, "data": "user already logged in"})
@@ -60,7 +61,7 @@ func Login(ctx *gin.Context, name string, id int) (T.LogintimeUser, error) {
 // then implements func Login
 func Loginbyparam(ctx *gin.Context) {
 	name := ctx.Query("name")
-	fmt.Println("name: ", name)
+	fmt.Println("LoginbyParam::name: ", name)
 
 	id, err := database.DbGetId(name)
 	if (err != nil) || (id == -1) || (id == 0) {
